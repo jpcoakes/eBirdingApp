@@ -22,7 +22,29 @@ export default class BirdSelection extends LightningElement {
   mapMarkers = [];
   noResultsMessage = false;
   birdDisabled = true;
-  searchDisabled = true;
+  calloutOptions = [
+    {
+      text: "Find recent nearby sightings of a bird species within selected radius and timeframe",
+      value:
+        "Find recent nearby sightings of a bird species within selected radius and timeframe",
+      id: 0,
+      selectable: true,
+      type: "option-inline"
+    },
+    {
+      text: "Find closest sightings of a bird species",
+      value: "Find closest sightings of a bird species",
+      id: 1,
+      selectable: true,
+      type: "option-inline"
+    }
+  ];
+  selectedCalloutTypePill;
+  selectedCallout;
+
+  get searchDisabled() {
+    return !this.selectedCalloutTypePill && !this.selectedBird;
+  }
 
   get categoryOptions() {
     return this._categoryOptions;
@@ -69,7 +91,6 @@ export default class BirdSelection extends LightningElement {
       label: selectedBirdCode.text
     };
     this.selectedBirdPill = newPill;
-    this.searchDisabled = false;
   }
 
   handleLocationChange(event) {
@@ -114,7 +135,6 @@ export default class BirdSelection extends LightningElement {
     this.selectedBirdPill = {};
     this.birdText = "";
     this.birdDisabled = false;
-    this.searchDisabled = true;
   }
 
   handleCountryChange(event) {
@@ -134,7 +154,12 @@ export default class BirdSelection extends LightningElement {
   }
 
   async recentSightings(bird) {
-    const url = `https://api.ebird.org/v2/data/obs/geo/recent/${bird}?lat=${this.selectedLatitude}&lng=${this.selectedLongitude}&dist=${this.selectedRadius}&back=${this.selectedTime}`;
+    let url;
+    if (this.selectedCallout === 0) {
+      url = `https://api.ebird.org/v2/data/obs/geo/recent/${bird}?lat=${this.selectedLatitude}&lng=${this.selectedLongitude}&dist=${this.selectedRadius}&back=${this.selectedTime}`;
+    } else {
+      url = `https://api.ebird.org/v2/data/nearest/geo/recent/${bird}?lat=${this.selectedLatitude}&lng=${this.selectedLongitude}&maxResults=100`;
+    }
     console.log("url:", url);
 
     try {
@@ -287,7 +312,7 @@ export default class BirdSelection extends LightningElement {
     });
     this._categoryOptions = categoryList;
   }
-  async handleClick() {
+  async handleSearch() {
     this.recentSightings(this.selectedBird);
   }
 
@@ -308,5 +333,26 @@ export default class BirdSelection extends LightningElement {
     //   type: "option-inline"
     // });
     // console.log(this.categoryOptions);
+  }
+
+  handleCalloutTypeChange(event) {
+    this.mapMarkers = [];
+    let selection = this.calloutOptions.find(
+      (opt) => opt.value === event.detail.value
+    );
+    let newPill = {
+      text: selection.text,
+      value: selection.value,
+      id: selection.id,
+      iconName: "",
+      label: selection.text
+    };
+    this.selectedCalloutTypePill = newPill;
+    this.selectedCallout = selection.id;
+  }
+
+  handleCalloutTypeRemove(event) {
+    this.selectedCalloutTypePill = null;
+    this.selectedCallout = null;
   }
 }
