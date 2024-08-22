@@ -1,0 +1,21 @@
+.item {
+  width: auto;
+  height: auto;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.flex-container {
+  grid-column-start: 1;
+  grid-column-end: 3;
+  display: flex;
+  align-items: stretch;
+}
+
+.grid-picker {
+  margin-left: 0;
+}

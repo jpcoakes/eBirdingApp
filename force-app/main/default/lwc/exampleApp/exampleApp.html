@@ -1,0 +1,35 @@
+<template>
+  <!-- 
+    variants:
+    switch (value) {
+      case "small":
+        this.computedVariant = "slds-visual-picker slds-visual-picker_small";
+        break;
+      case "medium":
+        this.computedVariant = "slds-visual-picker slds-visual-picker_medium";
+        break;
+      case "large":
+        this.computedVariant = "slds-visual-picker slds-visual-picker_large";
+        break;
+      case "vertical":
+        this.computedVariant = "slds-visual-picker slds-visual-picker_vertical";
+        break;
+      case "grid":
+        this.computedVariant = "slds-visual-picker grid-picker";
+        this.computedControlVariant =
+          "slds-form-element__control slds-visual-picker_grid";
+        break;
+      default:
+        this.computedVariant = "slds-visual-picker slds-visual-picker_medium";
+        break;
+    }-->
+  <c-base-visual-picker
+    items={selectionList}
+    name={selectionComponentName}
+    type="checkbox"
+    header-label={picklistHeader}
+    item-styles="slds-visual-picker grid-picker"
+    wrapper-styles="slds-form-element__control slds-visual-picker_grid"
+    onbuttonclick={handleButtonClick}
+  ></c-base-visual-picker>
+</template>

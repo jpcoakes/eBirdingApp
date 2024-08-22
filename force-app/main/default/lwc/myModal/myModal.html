@@ -1,0 +1,26 @@
+<template>
+  <lightning-modal-header label={headerCompParams.label}>
+    <lwc:component
+      lwc:if={headerComp}
+      lwc:is={headerComp}
+      lwc:spread={headerCompParams}
+      lwc:ref="header"
+    ></lwc:component>
+  </lightning-modal-header>
+  <lightning-modal-body>
+    <lwc:component
+      lwc:if={bodyComp}
+      lwc:is={bodyComp}
+      lwc:spread={bodyCompParams}
+      lwc:ref="body"
+    ></lwc:component>
+  </lightning-modal-body>
+  <lightning-modal-footer>
+    <lwc:component
+      lwc:if={footerComp}
+      lwc:is={footerComp}
+      lwc:spread={footerCompParams}
+      lwc:ref="footer"
+    ></lwc:component>
+  </lightning-modal-footer>
+</template>

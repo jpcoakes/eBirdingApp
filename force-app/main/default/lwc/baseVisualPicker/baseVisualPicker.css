@@ -1,0 +1,21 @@
+:host {
+  --gridcols: 2;
+  --gridrows: 0;
+}
+
+.item {
+  width: auto;
+  height: auto;
+}
+
+.slds-visual-picker_grid {
+  display: grid;
+  grid-auto-flow: row;
+  grid-template-columns: repeat(var(--gridcols), 1fr);
+  grid-template-rows: repeat(var(--gridrows), 1fr);
+  gap: 1rem;
+}
+
+.grid-picker {
+  margin-left: 0;
+}

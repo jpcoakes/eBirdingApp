@@ -1,0 +1,13 @@
+<template>
+  <c-base-visual-picker
+    items={selectionList}
+    name={selectionComponentName}
+    type="checkbox"
+    header-label={picklistHeader}
+    item-styles="slds-visual-picker grid-picker"
+    wrapper-styles="slds-form-element__control slds-visual-picker_grid"
+    grid-cols="3"
+    grid-rows="3"
+    onbuttonclick={handleButtonClick}
+  ></c-base-visual-picker>
+</template>

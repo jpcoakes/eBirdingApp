@@ -1,0 +1,93 @@
+<template>
+  <div class="slds-form-element">
+    <label
+      class="slds-form-element__label"
+      for={combobox.labelforId}
+      id={combobox.labelId}
+      >{combobox.label}</label
+    >
+    <div class="slds-form-element__control">
+      <div class="slds-combobox_container">
+        <div
+          class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-is-open"
+        >
+          <div
+            class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right"
+            role="none"
+          >
+            <input
+              type="text"
+              class="slds-input slds-combobox__input slds-has-focus slds-combobox__input-value"
+              id={combobox.inputId}
+              aria-autocomplete="list"
+              aria-controls={combobox.controlsId}
+              aria-expanded="true"
+              aria-haspopup="listbox"
+              autocomplete="off"
+              role="combobox"
+              placeholder={combobox.placeholder}
+              value={value}
+              oninput={handleInputChange}
+              onkeydown={handleKeyDown}
+              onkeyup={handleKeyUp}
+            />
+            <span
+              data-role="search"
+              class="slds-icon_container slds-input__icon slds-input__icon_right input-icon-container"
+            >
+              <lightning-button-icon
+                tabindex="-1"
+                variant="bare"
+                size="small"
+                icon-name="utility:search"
+                alternative-text="search"
+                title="Type to filter"
+              >
+              </lightning-button-icon>
+            </span>
+          </div>
+          <div
+            id="listbox-id-11"
+            class="slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid"
+            role="listbox"
+            aria-label="Placeholder"
+            tabindex="0"
+            aria-busy="false"
+          >
+            <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+              <template
+                for:each={combobox.options}
+                for:item="option"
+                for:index="optIndex"
+              >
+                <li
+                  key={option.comName}
+                  role="presentation"
+                  class="slds-listbox__item"
+                >
+                  <div
+                    id={option.comName}
+                    class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small"
+                    role="option"
+                  >
+                    <span
+                      class="slds-media__figure slds-listbox__option-icon"
+                    ></span>
+                    <span class="slds-media__body"
+                      ><span
+                        class="slds-truncate"
+                        data-value={option.value}
+                        title={option.label}
+                        >{option.label}</span
+                      ></span
+                    >
+                  </div>
+                </li>
+              </template>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

@@ -1,0 +1,91 @@
+<template>
+  <fieldset class="slds-form-element">
+    <legend class="slds-form-element__legend slds-form-element__label">
+      Make a selection (example method 2)
+    </legend>
+
+    <div class="slds-form-element__control grid-container">
+      <div class="slds-visual-picker flex-container">
+        <input
+          type={type}
+          id={topCardParams.key}
+          value={topCardParams.key}
+          name="example-unique-name-35"
+          onclick={handleSelect}
+          onkeydown={handleKeyboardSelect}
+          disabled={topCardParams.disabled}
+          checked={topCardParams.checked}
+        />
+        <label for={topCardParams.key}>
+          <span
+            class="item slds-visual-picker__figure slds-visual-picker__text slds-align_absolute-center"
+            ><lightning-formatted-address
+              street={topCardParams.params.header}
+              city={topCardParams.params.body}
+              country="US"
+              province="CA"
+              postal-code={topCardParams.params.footer}
+              disabled
+            ></lightning-formatted-address>
+          </span>
+          <span class="slds-icon_container slds-visual-picker__text-check">
+            <lightning-icon
+              icon-name="utility:check"
+              alternative-text="Checked"
+              size="x-small"
+              variant="inverse"
+              title="Checked"
+            ></lightning-icon>
+          </span>
+        </label>
+      </div>
+      <legend
+        class="slds-form-element__legend slds-form-element__label flex-container"
+      >
+        This is the header between the top selection and grid.
+      </legend>
+
+      <template for:each={visualPickerList} for:item="item">
+        <div key={item.key} class="slds-visual-picker grid-picker">
+          <input
+            type={type}
+            id={item.key}
+            value={item.key}
+            name="example-unique-name-35"
+            onclick={handleSelect}
+            onkeydown={handleKeyboardSelect}
+            disabled={item.disabled}
+            checked={item.checked}
+          />
+          <label for={item.key}>
+            <span
+              class="item slds-visual-picker__figure slds-visual-picker__text slds-align_absolute-center"
+            >
+              <!-- <c-whatever-card-guts-component-we-make></c-whatever-card-guts-component-we-make>-->
+              <lightning-formatted-address
+                street={item.params.header}
+                city={item.params.body}
+                country="US"
+                province="CA"
+                postal-code={item.params.footer}
+                disabled
+              ></lightning-formatted-address>
+            </span>
+            <span
+              lwc:if={item.checked}
+              class="slds-icon_container slds-visual-picker__text-check"
+            >
+              <lightning-icon
+                icon-name="utility:check"
+                alternative-text="Checked"
+                size="x-small"
+                variant="inverse"
+                title="Checked"
+              ></lightning-icon>
+            </span>
+          </label>
+        </div>
+      </template>
+    </div>
+  </fieldset>
+</template>
