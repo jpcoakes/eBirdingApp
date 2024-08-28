@@ -8,7 +8,7 @@ export default class MyModal extends LightningModal {
   _headerComp;
   _bodyComp;
   _footerComp;
-  disableClose = true;
+  @api label;
 
   @api
   set headerComp(value) {

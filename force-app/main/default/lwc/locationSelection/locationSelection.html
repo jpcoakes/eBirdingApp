@@ -1,0 +1,13 @@
+<template>
+  <div class="slds-var-p-around_x-small">
+    <lightning-card title={title}>
+      <p class="slds-var-p-horizontal_small">
+        <strong>Latitude: </strong>{latitude}
+      </p>
+      <p class="slds-var-p-horizontal_small">
+        <strong>Longitude: </strong>{longitude}
+      </p>
+      <p lwc:if={footer} slot="footer">{footer}</p>
+    </lightning-card>
+  </div>
+</template>

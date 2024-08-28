@@ -593,7 +593,7 @@ export default class cBaseCombobox extends LightningElement {
     this.updateItems(this._items);
   }
 
-  sortItems(array, string) {
+  sortItems(array, string = "a") {
     return array
       .sort((a, b) => {
         const nameA = Array.isArray(a.text)
@@ -617,10 +617,10 @@ export default class cBaseCombobox extends LightningElement {
         const nameB = Array.isArray(b.text)
           ? b.text[0].text.toLowerCase()
           : b.text.toLowerCase();
-        if (nameA.startsWith(string?.at(0))) {
+        if (nameA.startsWith(string?.at(0).toLowerCase())) {
           return -1;
         }
-        if (nameB.startsWith(string?.at(0))) {
+        if (nameB.startsWith(string?.at(0).toLowerCase())) {
           return 1;
         }
         return 0;
@@ -707,6 +707,8 @@ export default class cBaseCombobox extends LightningElement {
     if (!this._hasDropdownOpened) {
       if (this._unprocessedItems) {
         this.updateItems(this._unprocessedItems);
+        this._items = this.sortItems(this._items);
+        this.updateItems(this._items);
       }
       this._hasDropdownOpened = true;
     }
@@ -763,8 +765,7 @@ export default class cBaseCombobox extends LightningElement {
 
   handlePillRemove() {
     this.inputElement.focus();
-    this._items = this._unprocessedItems;
-    this.updateItems(this._items);
+    this.updateItems(this._unprocessedItems);
     this._events.dispatchPillRemove(this.inputPill);
   }
 

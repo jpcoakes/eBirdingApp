@@ -14,7 +14,7 @@ export default class BaseVisualPicker extends LightningElement {
   _itemStyles;
   @api
   set itemStyles(value) {
-    this._itemStyles = value;
+    this._itemStyles = "item " + value;
   }
 
   get itemStyles() {

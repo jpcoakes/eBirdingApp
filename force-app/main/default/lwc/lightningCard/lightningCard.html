@@ -1,12 +1,6 @@
 <template>
   <lightning-card title={title}>
-    <lightning-button
-      label="New"
-      onclick={handleClick}
-      value="test"
-      slot="actions"
-    ></lightning-button>
     <p class="slds-p-horizontal_small">{body}</p>
-    <p slot="footer">{footer}</p>
+    <p lwc:if={footer} slot="footer">{footer}</p>
   </lightning-card>
 </template>

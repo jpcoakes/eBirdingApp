@@ -1,5 +1,5 @@
 <template>
-  <lightning-modal-header label={headerCompParams.label}>
+  <lightning-modal-header lwc:if={headerComp} label={headerCompParams.label}>
     <lwc:component
       lwc:if={headerComp}
       lwc:is={headerComp}
@@ -7,6 +7,7 @@
       lwc:ref="header"
     ></lwc:component>
   </lightning-modal-header>
+  <lightning-modal-header lwc:else label={label}></lightning-modal-header>
   <lightning-modal-body>
     <lwc:component
       lwc:if={bodyComp}

@@ -1,5 +1,6 @@
 import { LightningElement, track } from "lwc";
-import US_CITIES from "@salesforce/resourceUrl/CitiesList";
+import MyModal from "c/myModal";
+import { modalBodySetup } from "./birdSelectionV2Helper.js";
 
 export default class BirdSelection extends LightningElement {
   _categoryOptions = [];
@@ -13,37 +14,92 @@ export default class BirdSelection extends LightningElement {
   selectedBirdCode;
   selectedCategory;
   selectedCategoryPill;
+  selectedCountry;
+  selectedCountryCode;
+  selectedCountryPill;
   categoryText = "";
   birdText = "";
+  countryText = "";
   selectedLatitude = 34.61;
   selectedLongitude = -86.75;
   selectedRadius = 25;
   selectedTime = 14;
+  selectedMax = 3000;
+  resultsMax = 3000;
   mapMarkers = [];
   noResultsMessage = false;
   birdDisabled = true;
-  calloutOptions = [
+  searchCityDisabled = true;
+  searchCityLoading = false;
+  queryTerm;
+  @track calloutOptions = [
     {
-      text: "Find recent nearby sightings of a bird species within selected radius and timeframe",
-      value:
-        "Find recent nearby sightings of a bird species within selected radius and timeframe",
-      id: 0,
+      text: "Recent nearby observations of a species",
+      value: 1,
+      id: 1,
+      max: 10000,
+      iconName: "standard:time_period",
       selectable: true,
-      type: "option-inline"
+      type: "option-inline",
+      updateUrl(that) {
+        this.url = `https://api.ebird.org/v2/data/obs/geo/recent/${that.selectedBird}?lat=${that.selectedLatitude}&lng=${that.selectedLongitude}&dist=${that.selectedRadius}&back=${that.selectedTime}&maxResults=${that.selectedMax}`;
+        return this.url;
+      }
     },
     {
-      text: "Find closest sightings of a bird species",
-      value: "Find closest sightings of a bird species",
-      id: 1,
+      text: "Nearest observations of a species",
+      value: 2,
+      id: 2,
+      max: 3000,
+      iconName: "standard:location",
       selectable: true,
-      type: "option-inline"
+      type: "option-inline",
+      updateUrl(that) {
+        this.url = `https://api.ebird.org/v2/data/nearest/geo/recent/${that.selectedBird}?lat=${that.selectedLatitude}&lng=${that.selectedLongitude}&dist=${that.selectedRadius}&back=${that.selectedTime}&maxResults=${that.selectedMax}`;
+        return this.url;
+      }
+    },
+    {
+      text: "Recent nearby notable observations",
+      value: 3,
+      id: 3,
+      max: 10000,
+      iconName: "standard:topic",
+      selectable: true,
+      type: "option-inline",
+      updateUrl(that) {
+        this.url = `https://api.ebird.org/v2/data/obs/geo/recent/notable?lat=${that.selectedLatitude}&lng=${that.selectedLongitude}&dist=${that.selectedRadius}&back=${that.selectedTime}&maxResults=${that.selectedMax}`;
+        return this.url;
+      }
     }
   ];
   selectedCalloutTypePill;
   selectedCallout;
+  searchDisabledHelpText = "Select a Search Type";
 
   get searchDisabled() {
-    return !this.selectedCalloutTypePill && !this.selectedBird;
+    switch (this.selectedCallout?.id) {
+      case 1: {
+        this.searchDisabledHelpText =
+          "Select a Bird Category, Bird, and Location to enable this button";
+        return !this.selectedBird;
+      }
+      case 2: {
+        this.searchDisabledHelpText =
+          "Select a Bird Category, Bird, and Location to enable this button";
+        return !this.selectedBird;
+      }
+      case 3: {
+        this.searchDisabledHelpText = "Select a Location to enable this button";
+        let locationInputEle = this.template.querySelector(
+          "lightning-input-location"
+        );
+        return !locationInputEle.checkValidity();
+      }
+      default:
+        this.searchDisabledHelpText = "Select a Search Type";
+        return true;
+    }
   }
 
   get categoryOptions() {
@@ -80,6 +136,8 @@ export default class BirdSelection extends LightningElement {
 
   handleBirdChange(event) {
     this.selectedBird = event.detail.value;
+    console.log(this.selectedBird);
+
     let selectedBirdCode = this.birdOptions.find(
       (bird) => bird.id === this.selectedBird
     );
@@ -95,32 +153,40 @@ export default class BirdSelection extends LightningElement {
 
   handleLocationChange(event) {
     let inputComp = this.template.querySelector("lightning-input-location");
-    if (event.target.latitude.split(".")[1].length > 2) {
+    if (
+      event.target.latitude &&
+      event.target.latitude.split(".")[1]?.length > 2
+    ) {
+      this.selectedLatitude = event.target.latitude.substring(
+        0,
+        event.target.latitude.indexOf(".") + 3
+      );
       inputComp.setCustomValidityForField(
         "Please enter a latitude with only 2 decimal places",
         "latitude"
       );
     } else {
+      this.selectedLatitude = event.target.latitude;
       inputComp.setCustomValidityForField("", "latitude");
     }
 
-    if (event.target.longitude.split(".")[1].length > 2) {
+    if (
+      event.target.longitude &&
+      event.target.longitude.split(".")[1]?.length > 2
+    ) {
+      this.selectedLongitude = event.target.longitude.substring(
+        0,
+        event.target.longitude.indexOf(".") + 3
+      );
       inputComp.setCustomValidityForField(
         "Please enter a longitude with only 2 decimal places",
         "longitude"
       );
     } else {
+      this.selectedLongitude = event.target.longitude;
       inputComp.setCustomValidityForField("", "longitude");
     }
     inputComp.reportValidity();
-    this.selectedLatitude = +event.target.latitude.substring(
-      0,
-      event.target.latitude.indexOf(".") + 3
-    );
-    this.selectedLongitude = +event.target.longitude.substring(
-      0,
-      event.target.longitude.indexOf(".") + 3
-    );
   }
 
   handleCategoryRemove() {
@@ -138,28 +204,38 @@ export default class BirdSelection extends LightningElement {
   }
 
   handleCountryChange(event) {
-    console.log("country changed", event);
-    // event.detail.value has the country name
-    // event.detail.id has the country code
-    let countryCode = event.detail.value.id;
+    this.selectedCountry = event.detail.value;
+    let selectedCountryObject = this.countryOptions.find(
+      (country) => country.value === this.selectedCountry
+    );
+    this.selectedCountryCode = selectedCountryObject.id;
+    console.log("handleCountryChange", this.selectedCountryCode);
+
+    let newPill = {
+      text: selectedCountryObject.text,
+      value: selectedCountryObject.value,
+      id: selectedCountryObject.id,
+      iconName: "",
+      label: selectedCountryObject.text
+    };
+    this.selectedCountryPill = newPill;
+    this.searchCityDisabled = false;
   }
   handleCityChange(event) {
     console.log("city changed");
   }
   handleCountryRemove(event) {
-    console.log("country removed");
+    this.selectedCountry = "";
+    this.selectedCountryPill = {};
+    this.countryText = "";
+    this.searchCityDisabled = true;
   }
   handleCityRemove(event) {
     console.log("city removed");
   }
 
   async recentSightings(bird) {
-    let url;
-    if (this.selectedCallout === 0) {
-      url = `https://api.ebird.org/v2/data/obs/geo/recent/${bird}?lat=${this.selectedLatitude}&lng=${this.selectedLongitude}&dist=${this.selectedRadius}&back=${this.selectedTime}`;
-    } else {
-      url = `https://api.ebird.org/v2/data/nearest/geo/recent/${bird}?lat=${this.selectedLatitude}&lng=${this.selectedLongitude}&maxResults=100`;
-    }
+    let url = this.selectedCallout.updateUrl(this);
     console.log("url:", url);
 
     try {
@@ -194,8 +270,8 @@ export default class BirdSelection extends LightningElement {
           Latitude: sighting.lat,
           Longitude: sighting.lng
         },
-        title: sighting.locName,
-        description: `Date: ${new Date(sighting.obsDt).toLocaleDateString()} <br /> Time: ${new Date(sighting.obsDt).toLocaleTimeString()} <br/>
+        title: sighting?.comName,
+        description: `Location: ${sighting.locName} <br /> Date: ${new Date(sighting.obsDt).toLocaleDateString()} <br /> Time: ${new Date(sighting.obsDt).toLocaleTimeString()} <br/>
           Birds Seen: ${sighting.howMany ? sighting.howMany : "Not reported."}`
       });
     });
@@ -237,12 +313,6 @@ export default class BirdSelection extends LightningElement {
     this.getBirdsData();
     // retrieve list of countries with cities
     this.getCitiesData();
-
-    // let request = new XMLHttpRequest();
-    // request.open("GET", US_CITIES, false);
-    // request.send(null);
-
-    // let usCities = JSON.parse(request.responseText);
   }
 
   async getCitiesData() {
@@ -252,9 +322,7 @@ export default class BirdSelection extends LightningElement {
       if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
       }
-
       const json = await response.json();
-
       this._fullCountryCityList = json.data;
       this.parseCountries(this._fullCountryCityList);
     } catch (error) {
@@ -263,12 +331,19 @@ export default class BirdSelection extends LightningElement {
   }
 
   parseCountries(countryList) {
-    this._fullCountryList = countryList.map((country) => {
-      return {
-        text: country.country,
-        value: country.iso3
-      };
+    let countryListTemp = [];
+    countryList.forEach((country) => {
+      {
+        let newCountry = {};
+        newCountry.text = country.country;
+        newCountry.value = country.country;
+        newCountry.id = country.iso2;
+        newCountry.selectable = true;
+        newCountry.type = "option-inline";
+        countryListTemp.push(newCountry);
+      }
     });
+    this._fullCountryList = countryListTemp;
   }
 
   async getBirdsData() {
@@ -319,40 +394,151 @@ export default class BirdSelection extends LightningElement {
   handleCategoryInput(event) {
     this.categoryText = event.detail.text;
   }
+
   handleBirdInput(event) {
     this.birdText = event.detail.text;
   }
 
-  handleCategoryEndReached(event) {
-    // console.log("handleCategoryEndReached");
-    // this.categoryOptions.push({
-    //   text: "More matches are available. Keep typing to narrow your search.",
-    //   value: "empty",
-    //   id: "empty",
-    //   selectable: true,
-    //   type: "option-inline"
-    // });
-    // console.log(this.categoryOptions);
+  handleCountryInput(event) {
+    this.countryText = event.detail.text;
   }
+
+  handleCategoryEndReached(event) {}
 
   handleCalloutTypeChange(event) {
     this.mapMarkers = [];
     let selection = this.calloutOptions.find(
-      (opt) => opt.value === event.detail.value
+      (opt) => opt.value === +event.detail.value
     );
     let newPill = {
       text: selection.text,
-      value: selection.value,
+      value: selection.text,
       id: selection.id,
       iconName: "",
       label: selection.text
     };
     this.selectedCalloutTypePill = newPill;
-    this.selectedCallout = selection.id;
+    this.selectedCallout = selection;
+    this.resultsMax = this.selectedCallout.max;
   }
 
   handleCalloutTypeRemove(event) {
     this.selectedCalloutTypePill = null;
     this.selectedCallout = null;
+  }
+
+  handleSelectedMaxChange(event) {
+    this.selectedMax = event.detail.value;
+  }
+
+  handleSelectedRadiusChange(event) {
+    this.selectedRadius = event.detail.value;
+  }
+
+  handleSelectedTimeChange(event) {
+    this.selectedTime = event.detail.value;
+  }
+
+  async searchCityCallout(string, countryCode) {
+    // https://api.api-ninjas.com/v1/geocoding?city=Crawfordsville&country=US
+    const url = `https://api.api-ninjas.com/v1/geocoding?city=${string}&country=${countryCode}`;
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "X-Api-Key": "JUSr6Pi7xpD+zxnbg8lnmA==hkbhL9IO6ygo5SD5"
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const json = await response.json();
+      return json;
+    } catch (error) {
+      console.error(error.message);
+      return null;
+    }
+  }
+
+  async handleSearchCity(evt) {
+    const isEnterKey = evt.keyCode === 13;
+    if (isEnterKey) {
+      this.searchCityLoading = true;
+      this.queryTerm = evt.target.value;
+      console.log(
+        "queryTerm: ",
+        this.queryTerm,
+        "countryCode: ",
+        this.selectedCountryCode
+      );
+      // call the city search API and wait for results 2 digit country code
+      let results = await this.searchCityCallout(
+        this.queryTerm,
+        this.selectedCountryCode
+      );
+      console.log("results: ", results);
+
+      // parse the results and build modalBody, send modalBodyComponentName, selectionItemComponentName, cityResults
+      let test2Body = modalBodySetup(
+        "c/baseVisualPicker",
+        "c/locationSelection",
+        results
+      );
+      // set up the modal body (make a method that takes a list of cities from the response and populates this array)
+      let testBody = {
+        name: "c/baseVisualPicker",
+        params: {
+          items: [
+            {
+              key: 0,
+              params: {
+                title: "Crawfordsville, Indiana",
+                latitude: "34.1234567",
+                longitude: "-86.7654321"
+              },
+              disabled: false,
+              checked: false,
+              value: "test1"
+            },
+            {
+              key: 1,
+              params: {
+                title: "Huntsville, Alabama",
+                latitude: "34.1234567",
+                longitude: "-86.7654321"
+              },
+              disabled: false,
+              checked: false,
+              value: "test2"
+            },
+            {
+              key: 2,
+              params: {
+                title: "Denver, Colorado",
+                latitude: "34.1234567",
+                longitude: "-86.7654321"
+              },
+              disabled: false,
+              checked: false,
+              value: "test3"
+            }
+          ],
+          name: "c/locationSelection",
+          type: "radio",
+          itemStyles: "slds-visual-picker grid-picker",
+          wrapperStyles: "slds-form-element__control slds-visual-picker_grid"
+        }
+      };
+      // call the modal open
+      const result = await MyModal.open({
+        label: "Select the correct city",
+        size: "small",
+        bodyComp: test2Body
+      });
+      // if modal closed with X button, promise returns result = 'undefined'
+      // if modal closed with OK button, promise returns result = 'okay'
+      console.log(result);
+    }
   }
 }

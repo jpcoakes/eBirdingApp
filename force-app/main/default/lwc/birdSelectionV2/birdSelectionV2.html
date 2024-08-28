@@ -1,6 +1,37 @@
 <template>
   <div class="grid-container">
-    <lightning-card title="Bird Selection" class="grid-item">
+    <lightning-card title="Search Type" class="grid-item">
+      <div class="slds-p-around_small">
+        <c-base-combobox
+          placeholder="Select a Search Type"
+          input-icon-name="utility:down"
+          input-label="Search Type"
+          items={calloutOptions}
+          input-pill={selectedCalloutTypePill}
+          required="true"
+          variant="standard"
+          onselect={handleCalloutTypeChange}
+          onpillremove={handleCalloutTypeRemove}
+        ></c-base-combobox>
+      </div>
+      <div class="slds-p-around_small">
+        <lightning-button
+          onclick={handleSearch}
+          aria-haspopup="dialog"
+          label="Search"
+          disabled={searchDisabled}
+        >
+        </lightning-button>
+        <lightning-helptext
+          lwc:if={searchDisabled}
+          content={searchDisabledHelpText}
+        ></lightning-helptext>
+      </div>
+      <div lwc:if={noResultsMessage} class="slds-p-around_small">
+        There were no results for these search parameters.
+      </div>
+    </lightning-card>
+    <lightning-card title="Bird" class="grid-item">
       <div class="slds-p-around_small">
         <c-base-combobox
           placeholder="Select a Bird Category"
@@ -32,7 +63,32 @@
         ></c-base-combobox>
       </div>
     </lightning-card>
-    <lightning-card title="Location Selection" class="grid-item">
+    <lightning-card title="Location" class="grid-item">
+      <div class="slds-p-around_small">
+        <c-base-combobox
+          input-label="Country"
+          placeholder="Select a Country"
+          input-icon-name="utility:search"
+          items={countryOptions}
+          input-pill={selectedCountryPill}
+          input-text={countryText}
+          required="true"
+          variant="lookup"
+          onselect={handleCountryChange}
+          onpillremove={handleCountryRemove}
+          ontextinput={handleCountryInput}
+        ></c-base-combobox>
+      </div>
+      <div class="slds-p-around_small" onkeyup={handleSearchCity}>
+        <lightning-input
+          name="city-search"
+          label="Type city and press enter"
+          field-level-help="Select a country first"
+          type="search"
+          is-loading={searchCityLoading}
+          disabled={searchCityDisabled}
+        ></lightning-input>
+      </div>
       <div class="slds-p-around_small">
         <lightning-input-location
           label="Coordinates"
@@ -44,63 +100,15 @@
         >
         </lightning-input-location>
       </div>
-      <!-- <div class="slds-p-around_small">
-          <c-searchable-combobox
-            label="Country"
-            placeholder="Select a Country"
-            options={countryOptions}
-            onselection={handleCountryChange}
-            onremoveselection={handleCountryRemove}
-          ></c-searchable-combobox>
-        </div>
-        <div class="slds-p-around_small">
-          <c-searchable-combobox
-            label="City"
-            placeholder="Select a City"
-            options={cityOptions}
-            onselection={handleCityChange}
-            onremoveselection={handleCityRemove}
-          ></c-searchable-combobox>
-        </div> -->
     </lightning-card>
-    <lightning-card title="Search Type Selection" class="grid-item">
-      <div class="slds-p-around_small">
-        <c-base-combobox
-          placeholder="Select a Search Type"
-          input-icon-name="utility:down"
-          input-label="Search Type"
-          items={calloutOptions}
-          input-pill={selectedCalloutTypePill}
-          required="true"
-          variant="standard"
-          onselect={handleCalloutTypeChange}
-          onpillremove={handleCalloutTypeRemove}
-        ></c-base-combobox>
-      </div>
-      <div class="slds-p-around_small">
-        <lightning-button
-          onclick={handleSearch}
-          aria-haspopup="dialog"
-          label="Search"
-          disabled={searchDisabled}
-        >
-        </lightning-button>
-        <lightning-helptext
-          lwc:if={searchDisabled}
-          content="Select a Search Type, Bird Category, and Bird to enable this button"
-        ></lightning-helptext>
-      </div>
-      <div lwc:if={noResultsMessage} class="slds-p-around_small">
-        There were no results for these search parameters.
-      </div>
-    </lightning-card>
-    <lightning-card title="Time and Distance Selection" class="grid-item">
+    <lightning-card title="Time and Distance" class="grid-item">
       <div class="slds-p-around_small">
         <lightning-slider
           label="Time (Days back from today)"
           min="1"
           max="30"
           value={selectedTime}
+          onchange={handleSelectedTimeChange}
         ></lightning-slider>
       </div>
 
@@ -109,11 +117,21 @@
           label="Search Radius (km)"
           max="50"
           value={selectedRadius}
+          onchange={handleSelectedRadiusChange}
+        ></lightning-slider>
+      </div>
+      <div class="slds-p-around_small">
+        <lightning-slider
+          label="Max results"
+          min="1"
+          max={resultsMax}
+          value={selectedMax}
+          onchange={handleSelectedMaxChange}
         ></lightning-slider>
       </div>
     </lightning-card>
   </div>
   <div class="slds-p-around_small">
-    <lightning-map map-markers={mapMarkers}></lightning-map>
+    <lightning-map map-markers={mapMarkers} list-view="auto"></lightning-map>
   </div>
 </template>
