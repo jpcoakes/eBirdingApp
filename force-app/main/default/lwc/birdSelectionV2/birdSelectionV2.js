@@ -480,65 +480,40 @@ export default class BirdSelection extends LightningElement {
       console.log("results: ", results);
 
       // parse the results and build modalBody, send modalBodyComponentName, selectionItemComponentName, cityResults
-      let test2Body = modalBodySetup(
+      let testBody = modalBodySetup(
         "c/baseVisualPicker",
         "c/locationSelection",
         results
       );
+
       // set up the modal body (make a method that takes a list of cities from the response and populates this array)
-      let testBody = {
-        name: "c/baseVisualPicker",
+      let testFooter = {
+        name: "c/modalButton",
         params: {
-          items: [
-            {
-              key: 0,
-              params: {
-                title: "Crawfordsville, Indiana",
-                latitude: "34.1234567",
-                longitude: "-86.7654321"
-              },
-              disabled: false,
-              checked: false,
-              value: "test1"
-            },
-            {
-              key: 1,
-              params: {
-                title: "Huntsville, Alabama",
-                latitude: "34.1234567",
-                longitude: "-86.7654321"
-              },
-              disabled: false,
-              checked: false,
-              value: "test2"
-            },
-            {
-              key: 2,
-              params: {
-                title: "Denver, Colorado",
-                latitude: "34.1234567",
-                longitude: "-86.7654321"
-              },
-              disabled: false,
-              checked: false,
-              value: "test3"
-            }
-          ],
-          name: "c/locationSelection",
-          type: "radio",
-          itemStyles: "slds-visual-picker grid-picker",
-          wrapperStyles: "slds-form-element__control slds-visual-picker_grid"
+          variant: "brand",
+          label: "Submit",
+          title: "Submit"
+          // onselect: this.dispatchEvent(
+          //   new CustomEvent("select", {
+          //     detail: { message: "test" }
+          //   })
+          // )
         }
       };
       // call the modal open
-      const result = await MyModal.open({
+      MyModal.open({
         label: "Select the correct city",
         size: "small",
-        bodyComp: test2Body
+        bodyComp: testBody,
+        footerComp: testFooter,
+        onselect: (e) => {
+          this.handleSelect(e);
+        }
       });
-      // if modal closed with X button, promise returns result = 'undefined'
-      // if modal closed with OK button, promise returns result = 'okay'
-      console.log(result);
     }
+  }
+
+  handleSelect(e) {
+    console.log("handleSelect", e);
   }
 }
