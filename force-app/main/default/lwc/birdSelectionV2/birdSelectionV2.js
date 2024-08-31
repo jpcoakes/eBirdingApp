@@ -20,6 +20,9 @@ export default class BirdSelection extends LightningElement {
   categoryText = "";
   birdText = "";
   countryText = "";
+  cityText = "";
+  selectedCityObj;
+  selectedCity;
   selectedLatitude = 34.61;
   selectedLongitude = -86.75;
   selectedRadius = 25;
@@ -30,6 +33,7 @@ export default class BirdSelection extends LightningElement {
   noResultsMessage = false;
   birdDisabled = true;
   searchCityDisabled = true;
+  searchCityReadOnly = false;
   searchCityLoading = false;
   queryTerm;
   @track calloutOptions = [
@@ -493,11 +497,6 @@ export default class BirdSelection extends LightningElement {
           variant: "brand",
           label: "Submit",
           title: "Submit"
-          // onselect: this.dispatchEvent(
-          //   new CustomEvent("select", {
-          //     detail: { message: "test" }
-          //   })
-          // )
         }
       };
       // call the modal open
@@ -508,6 +507,9 @@ export default class BirdSelection extends LightningElement {
         footerComp: testFooter,
         onselect: (e) => {
           this.handleSelect(e);
+        },
+        onselection: (e) => {
+          this.handleSelection(e);
         }
       });
     }
@@ -515,5 +517,18 @@ export default class BirdSelection extends LightningElement {
 
   handleSelect(e) {
     console.log("handleSelect", e);
+    console.log(this.selectedCityObj);
+
+    this.selectedCity = this.selectedCityObj.title;
+    this.selectedLatitude = this.selectedCityObj.latitude;
+    this.selectedLongitude = this.selectedCityObj.longitude;
+    this.searchCityLoading = false;
+    // let searchInput = this.template.querySelector("lightning-input");
+    this.cityText = this.selectedCityObj.title;
+    this.searchCityReadOnly = true;
+  }
+  handleSelection(e) {
+    console.log("handleSelection", e);
+    this.selectedCityObj = { ...e.detail.selectedItem.params };
   }
 }

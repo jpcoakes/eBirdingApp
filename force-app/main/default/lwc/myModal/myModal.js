@@ -47,4 +47,8 @@ export default class MyModal extends LightningModal {
   get footerComp() {
     return this._footerComp;
   }
+
+  handleClose() {
+    this.close();
+  }
 }

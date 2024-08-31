@@ -10,8 +10,12 @@ export function modalBodySetup(
       key: index,
       params: {
         title: `${city.name}, ${city.state}`,
-        latitude: city.latitude,
+        latitude: city.latitude
+          .toString()
+          .substring(0, city.latitude.toString().indexOf(".") + 3),
         longitude: city.longitude
+          .toString()
+          .substring(0, city.longitude.toString().indexOf(".") + 3)
       },
       disabled: false,
       checked: false,
