@@ -1,6 +1,12 @@
 import { api } from "lwc";
 import LightningModal from "lightning/modal";
 
+const COMPONENT_MAPPING = {
+  modalButton: () => import("c/modalButton"),
+  baseVisualPicker: () => import("c/baseVisualPicker"),
+  lightningCard: () => import("c/lightningCard"),
+  locationSelection: () => import("c/locationSelection")
+};
 export default class MyModal extends LightningModal {
   headerCompParams;
   bodyCompParams;
@@ -14,7 +20,7 @@ export default class MyModal extends LightningModal {
   set headerComp(value) {
     // dynamic import of component name and render on modal header
     this.headerCompParams = value.params;
-    import(value.name)
+    COMPONENT_MAPPING[value.name]()
       .then(({ default: ctor }) => {
         this._headerComp = ctor;
       })
@@ -26,7 +32,7 @@ export default class MyModal extends LightningModal {
   @api
   set bodyComp(value) {
     this.bodyCompParams = value.params;
-    import(value.name)
+    COMPONENT_MAPPING[value.name]()
       .then(({ default: ctor }) => {
         this._bodyComp = ctor;
       })
@@ -38,7 +44,7 @@ export default class MyModal extends LightningModal {
   @api
   set footerComp(value) {
     this.footerCompParams = value.params;
-    import(value.name)
+    COMPONENT_MAPPING[value.name]()
       .then(({ default: ctor }) => {
         this._footerComp = ctor;
       })

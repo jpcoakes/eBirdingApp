@@ -1,0 +1,12 @@
+<template>
+  <template for:each={radioButtonGroupArray} for:item="buttonGroup">
+    <lightning-radio-group
+      key={buttonGroup.label}
+      label={buttonGroup.label}
+      options={buttonGroup.options}
+      value={value}
+      onchange={handleRadioSelection}
+      type="radio"
+    ></lightning-radio-group>
+  </template>
+</template>

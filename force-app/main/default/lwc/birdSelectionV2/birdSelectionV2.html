@@ -40,7 +40,8 @@
           items={categoryOptions}
           input-pill={selectedCategoryPill}
           input-text={categoryText}
-          required="true"
+          required={birdCategoryRequired}
+          disabled={birdCategoryDisabled}
           variant="lookup"
           onselect={handleCategoryChange}
           onpillremove={handleCategoryRemove}
@@ -54,7 +55,7 @@
           items={birdOptions}
           input-pill={selectedBirdPill}
           input-text={birdText}
-          required="true"
+          required={birdRequired}
           disabled={birdDisabled}
           variant="lookup"
           onselect={handleBirdChange}

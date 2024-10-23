@@ -26,7 +26,7 @@ export function modalBodySetup(
   let testBody = {
     name: modalBodyComponentName,
     params: {
-      name: "c/locationSelection",
+      name: selectionItemComponentName,
       type: "radio",
       itemStyles: "slds-visual-picker grid-picker",
       wrapperStyles: "slds-form-element__control slds-visual-picker_grid",
