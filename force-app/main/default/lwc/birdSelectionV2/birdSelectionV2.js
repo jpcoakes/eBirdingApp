@@ -26,8 +26,8 @@ export default class BirdSelection extends LightningElement {
   cityText = "";
   selectedCityObj;
   selectedCity;
-  selectedLatitude = 34.61;
-  selectedLongitude = -86.75;
+  selectedLatitude;
+  selectedLongitude;
   selectedRadius = 25;
   selectedTime = 14;
   selectedMax = 3000;
