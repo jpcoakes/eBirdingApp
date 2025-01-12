@@ -1,6 +1,12 @@
-.grid-container {
+.grid-large-device {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.grid-small-device {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto;
 }
 
 .grid-item {

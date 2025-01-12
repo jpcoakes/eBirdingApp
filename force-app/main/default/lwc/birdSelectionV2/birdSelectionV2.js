@@ -1,6 +1,7 @@
 import { LightningElement, track } from "lwc";
 import MyModal from "c/myModal";
 import { modalBodySetup } from "./birdSelectionV2Helper.js";
+import formFactorPropertyName from "@salesforce/client/formFactor";
 
 export default class BirdSelection extends LightningElement {
   _categoryOptions = [];
@@ -39,6 +40,7 @@ export default class BirdSelection extends LightningElement {
   searchCityReadOnly = false;
   searchCityLoading = false;
   queryTerm;
+
   @track calloutOptions = [
     {
       text: "Recent nearby observations of a species",
@@ -183,7 +185,7 @@ export default class BirdSelection extends LightningElement {
       event.target.latitude &&
       event.target.latitude.split(".")[1]?.length > 2
     ) {
-      this.selectedLatitude = +event.target.latitude.substring(
+      this.selectedLatitude = event.target.latitude.substring(
         0,
         event.target.latitude.indexOf(".") + 3
       );
@@ -192,7 +194,7 @@ export default class BirdSelection extends LightningElement {
         "latitude"
       );
     } else {
-      this.selectedLatitude = +event.target.latitude;
+      this.selectedLatitude = event.target.latitude;
       inputComp.setCustomValidityForField("", "latitude");
     }
 
@@ -200,7 +202,7 @@ export default class BirdSelection extends LightningElement {
       event.target.longitude &&
       event.target.longitude.split(".")[1]?.length > 2
     ) {
-      this.selectedLongitude = +event.target.longitude.substring(
+      this.selectedLongitude = event.target.longitude.substring(
         0,
         event.target.longitude.indexOf(".") + 3
       );
@@ -209,7 +211,7 @@ export default class BirdSelection extends LightningElement {
         "longitude"
       );
     } else {
-      this.selectedLongitude = +event.target.longitude;
+      this.selectedLongitude = event.target.longitude;
       inputComp.setCustomValidityForField("", "longitude");
     }
     inputComp.reportValidity();
@@ -334,6 +336,14 @@ export default class BirdSelection extends LightningElement {
   }
 
   async connectedCallback() {
+    // set up css for device type
+    if (formFactorPropertyName === 'Small') {
+      // set up for Phone
+      this.containerStyle = 'grid-small-device';
+    } else {
+      this.containerStyle = 'grid-large-device';
+    }
+
     // retrieve the list of taxonomy codes
     this.getBirdsData();
     // retrieve list of countries with cities

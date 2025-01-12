@@ -1,9 +1,9 @@
 <template>
-  <div class="grid-container">
+  <div class={containerStyle}>
     <lightning-card title="Search Type" class="grid-item">
       <div class="slds-p-around_small">
         <c-base-combobox
-          placeholder="Select a Search Type"
+          placeholder="Select Type"
           input-icon-name="utility:down"
           input-label="Search Type"
           items={calloutOptions}
@@ -14,19 +14,6 @@
           onpillremove={handleCalloutTypeRemove}
         ></c-base-combobox>
       </div>
-      <div class="slds-p-around_small">
-        <lightning-button
-          onclick={handleSearch}
-          aria-haspopup="dialog"
-          label="Search"
-          disabled={searchDisabled}
-        >
-        </lightning-button>
-        <lightning-helptext
-          lwc:if={searchDisabled}
-          content={searchDisabledHelpText}
-        ></lightning-helptext>
-      </div>
       <div lwc:if={noResultsMessage} class="slds-p-around_small">
         There were no results for these search parameters.
       </div>
@@ -34,7 +21,7 @@
     <lightning-card title="Bird" class="grid-item">
       <div class="slds-p-around_small">
         <c-base-combobox
-          placeholder="Select a Bird Category"
+          placeholder="Select Category"
           input-icon-name="utility:search"
           input-label="Bird Category"
           items={categoryOptions}
@@ -49,7 +36,7 @@
           onendreached={handleCategoryEndReached}
         ></c-base-combobox>
         <c-base-combobox
-          placeholder="Select a Bird"
+          placeholder="Select Bird"
           input-icon-name="utility:search"
           input-label="Bird"
           items={birdOptions}
@@ -68,7 +55,7 @@
       <div class="slds-p-around_small">
         <c-base-combobox
           input-label="Country"
-          placeholder="Select a Country"
+          placeholder="Select Country"
           input-icon-name="utility:search"
           items={countryOptions}
           input-pill={selectedCountryPill}
@@ -132,7 +119,21 @@
         ></lightning-slider>
       </div>
     </lightning-card>
+    <div class="slds-p-around_small">
+      <lightning-button
+        onclick={handleSearch}
+        aria-haspopup="dialog"
+        label="Search"
+        disabled={searchDisabled}
+      >
+      </lightning-button>
+      <lightning-helptext
+        lwc:if={searchDisabled}
+        content={searchDisabledHelpText}
+      ></lightning-helptext>
+    </div>
   </div>
+  
   <div class="slds-p-around_small">
     <lightning-map map-markers={mapMarkers} list-view="auto"></lightning-map>
   </div>
