@@ -1,5 +1,11 @@
 import { LightningElement, api, track } from "lwc";
 
+const COMPONENT_MAPPING = {
+  modalButton: () => import("c/modalButton"),
+  baseVisualPicker: () => import("c/baseVisualPicker"),
+  lightningCard: () => import("c/lightningCard"),
+  locationSelection: () => import("c/locationSelection")
+};
 export default class BaseVisualPicker extends LightningElement {
   @track _items;
   @api
@@ -40,7 +46,7 @@ export default class BaseVisualPicker extends LightningElement {
   @api
   set name(value) {
     // dynamic import of component name
-    import(value)
+    COMPONENT_MAPPING[value]()
       .then(({ default: ctor }) => {
         this.selectionComp = ctor;
       })
@@ -64,7 +70,17 @@ export default class BaseVisualPicker extends LightningElement {
       this._items[+event.target.value].checked =
         !this._items[+event.target.value].checked;
     }
+    let selectedItem = this._items.find((item) => item.checked === true);
+    console.log("selectedItem on baseVisualPicker:", selectedItem);
+
     // send event to parent to let it know which item was selected
+    this.dispatchEvent(
+      new CustomEvent("selection", {
+        bubbles: true,
+        composed: true,
+        detail: { selectedItem }
+      })
+    );
   }
 
   handleKeyboardSelect(event) {
