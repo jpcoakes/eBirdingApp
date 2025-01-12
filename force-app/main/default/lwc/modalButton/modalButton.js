@@ -12,5 +12,10 @@ export default class ModalButton extends LightningElement {
         detail: { message: "test" }
       })
     );
+    this.dispatchEvent(
+      new CustomEvent("close", {
+        detail: { message: "close" }
+      })
+    );
   }
 }
