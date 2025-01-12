@@ -10,8 +10,12 @@ export function modalBodySetup(
       key: index,
       params: {
         title: `${city.name}, ${city.state}`,
-        latitude: city.latitude,
+        latitude: city.latitude
+          .toString()
+          .substring(0, city.latitude.toString().indexOf(".") + 3),
         longitude: city.longitude
+          .toString()
+          .substring(0, city.longitude.toString().indexOf(".") + 3)
       },
       disabled: false,
       checked: false,
@@ -22,7 +26,7 @@ export function modalBodySetup(
   let testBody = {
     name: modalBodyComponentName,
     params: {
-      name: "c/locationSelection",
+      name: selectionItemComponentName,
       type: "radio",
       itemStyles: "slds-visual-picker grid-picker",
       wrapperStyles: "slds-form-element__control slds-visual-picker_grid",

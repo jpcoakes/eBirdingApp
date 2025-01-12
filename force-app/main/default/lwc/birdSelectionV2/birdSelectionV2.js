@@ -18,8 +18,13 @@ export default class BirdSelection extends LightningElement {
   selectedCountryCode;
   selectedCountryPill;
   categoryText = "";
+  birdCategoryRequired = true;
+  birdRequired = true;
   birdText = "";
   countryText = "";
+  cityText = "";
+  selectedCityObj;
+  selectedCity;
   selectedLatitude = 34.61;
   selectedLongitude = -86.75;
   selectedRadius = 25;
@@ -29,7 +34,9 @@ export default class BirdSelection extends LightningElement {
   mapMarkers = [];
   noResultsMessage = false;
   birdDisabled = true;
+  birdGridItemDisabled = false;
   searchCityDisabled = true;
+  searchCityReadOnly = false;
   searchCityLoading = false;
   queryTerm;
   @track calloutOptions = [
@@ -71,6 +78,19 @@ export default class BirdSelection extends LightningElement {
         this.url = `https://api.ebird.org/v2/data/obs/geo/recent/notable?lat=${that.selectedLatitude}&lng=${that.selectedLongitude}&dist=${that.selectedRadius}&back=${that.selectedTime}&maxResults=${that.selectedMax}`;
         return this.url;
       }
+    },
+    {
+      text: "Recent nearby observations",
+      value: 4,
+      id: 4,
+      max: 10000,
+      iconName: "standard:address",
+      selectable: true,
+      type: "option-inline",
+      updateUrl(that) {
+        this.url = `https://api.ebird.org/v2/data/obs/geo/recent/?lat=${that.selectedLatitude}&lng=${that.selectedLongitude}&dist=${that.selectedRadius}&back=${that.selectedTime}&maxResults=${that.selectedMax}`;
+        return this.url;
+      }
     }
   ];
   selectedCalloutTypePill;
@@ -90,6 +110,13 @@ export default class BirdSelection extends LightningElement {
         return !this.selectedBird;
       }
       case 3: {
+        this.searchDisabledHelpText = "Select a Location to enable this button";
+        let locationInputEle = this.template.querySelector(
+          "lightning-input-location"
+        );
+        return !locationInputEle.checkValidity();
+      }
+      case 4: {
         this.searchDisabledHelpText = "Select a Location to enable this button";
         let locationInputEle = this.template.querySelector(
           "lightning-input-location"
@@ -136,7 +163,6 @@ export default class BirdSelection extends LightningElement {
 
   handleBirdChange(event) {
     this.selectedBird = event.detail.value;
-    console.log(this.selectedBird);
 
     let selectedBirdCode = this.birdOptions.find(
       (bird) => bird.id === this.selectedBird
@@ -157,7 +183,7 @@ export default class BirdSelection extends LightningElement {
       event.target.latitude &&
       event.target.latitude.split(".")[1]?.length > 2
     ) {
-      this.selectedLatitude = event.target.latitude.substring(
+      this.selectedLatitude = +event.target.latitude.substring(
         0,
         event.target.latitude.indexOf(".") + 3
       );
@@ -166,7 +192,7 @@ export default class BirdSelection extends LightningElement {
         "latitude"
       );
     } else {
-      this.selectedLatitude = event.target.latitude;
+      this.selectedLatitude = +event.target.latitude;
       inputComp.setCustomValidityForField("", "latitude");
     }
 
@@ -174,7 +200,7 @@ export default class BirdSelection extends LightningElement {
       event.target.longitude &&
       event.target.longitude.split(".")[1]?.length > 2
     ) {
-      this.selectedLongitude = event.target.longitude.substring(
+      this.selectedLongitude = +event.target.longitude.substring(
         0,
         event.target.longitude.indexOf(".") + 3
       );
@@ -183,7 +209,7 @@ export default class BirdSelection extends LightningElement {
         "longitude"
       );
     } else {
-      this.selectedLongitude = event.target.longitude;
+      this.selectedLongitude = +event.target.longitude;
       inputComp.setCustomValidityForField("", "longitude");
     }
     inputComp.reportValidity();
@@ -209,7 +235,6 @@ export default class BirdSelection extends LightningElement {
       (country) => country.value === this.selectedCountry
     );
     this.selectedCountryCode = selectedCountryObject.id;
-    console.log("handleCountryChange", this.selectedCountryCode);
 
     let newPill = {
       text: selectedCountryObject.text,
@@ -236,7 +261,7 @@ export default class BirdSelection extends LightningElement {
 
   async recentSightings(bird) {
     let url = this.selectedCallout.updateUrl(this);
-    console.log("url:", url);
+    // console.log("url:", url);
 
     try {
       const response = await fetch(url, {
@@ -410,6 +435,15 @@ export default class BirdSelection extends LightningElement {
     let selection = this.calloutOptions.find(
       (opt) => opt.value === +event.detail.value
     );
+    if (selection.id === 3) {
+      this.birdCategoryDisabled = true;
+      this.birdCategoryRequired = false;
+      this.birdRequired = false;
+    } else {
+      this.birdCategoryDisabled = false;
+      this.birdCategoryRequired = true;
+      this.birdRequired = true;
+    }
     let newPill = {
       text: selection.text,
       value: selection.text,
@@ -425,6 +459,9 @@ export default class BirdSelection extends LightningElement {
   handleCalloutTypeRemove(event) {
     this.selectedCalloutTypePill = null;
     this.selectedCallout = null;
+    this.birdCategoryDisabled = false;
+    this.birdCategoryRequired = true;
+    this.birdRequired = true;
   }
 
   handleSelectedMaxChange(event) {
@@ -466,38 +503,27 @@ export default class BirdSelection extends LightningElement {
     if (isEnterKey) {
       this.searchCityLoading = true;
       this.queryTerm = evt.target.value;
-      console.log(
-        "queryTerm: ",
-        this.queryTerm,
-        "countryCode: ",
-        this.selectedCountryCode
-      );
       // call the city search API and wait for results 2 digit country code
       let results = await this.searchCityCallout(
         this.queryTerm,
         this.selectedCountryCode
       );
-      console.log("results: ", results);
+      this.searchCityLoading = false;
 
       // parse the results and build modalBody, send modalBodyComponentName, selectionItemComponentName, cityResults
       let testBody = modalBodySetup(
-        "c/baseVisualPicker",
-        "c/locationSelection",
+        "baseVisualPicker",
+        "locationSelection",
         results
       );
 
       // set up the modal body (make a method that takes a list of cities from the response and populates this array)
       let testFooter = {
-        name: "c/modalButton",
+        name: "modalButton",
         params: {
           variant: "brand",
           label: "Submit",
           title: "Submit"
-          // onselect: this.dispatchEvent(
-          //   new CustomEvent("select", {
-          //     detail: { message: "test" }
-          //   })
-          // )
         }
       };
       // call the modal open
@@ -508,12 +534,24 @@ export default class BirdSelection extends LightningElement {
         footerComp: testFooter,
         onselect: (e) => {
           this.handleSelect(e);
+        },
+        onselection: (e) => {
+          this.handleSelection(e);
         }
       });
     }
   }
 
   handleSelect(e) {
-    console.log("handleSelect", e);
+    this.selectedCity = this.selectedCityObj.title;
+    this.selectedLatitude = +this.selectedCityObj.latitude;
+    this.selectedLongitude = +this.selectedCityObj.longitude;
+    this.searchCityLoading = false;
+    // let searchInput = this.template.querySelector("lightning-input");
+    this.cityText = this.selectedCityObj.title;
+    this.searchCityReadOnly = true;
+  }
+  handleSelection(e) {
+    this.selectedCityObj = { ...e.detail.selectedItem.params };
   }
 }
