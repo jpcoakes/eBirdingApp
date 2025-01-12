@@ -1,9 +1,16 @@
 export function modalBodySetup(
   modalBodyComponentName,
   selectionItemComponentName,
+  formFactor,
   cityResults
 ) {
+  let gridCols = 0;
   console.log(modalBodyComponentName, selectionItemComponentName, cityResults);
+  if (formFactor === 'Small') {
+    gridCols = 1;
+  } else {
+    gridCols = 2;
+  }
 
   let newResults = cityResults.map((city, index) => {
     return {
@@ -30,6 +37,7 @@ export function modalBodySetup(
       type: "radio",
       itemStyles: "slds-visual-picker grid-picker",
       wrapperStyles: "slds-form-element__control slds-visual-picker_grid",
+      gridCols: gridCols,
       items: [...newResults]
     }
   };

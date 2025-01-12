@@ -524,6 +524,7 @@ export default class BirdSelection extends LightningElement {
       let testBody = modalBodySetup(
         "baseVisualPicker",
         "locationSelection",
+        formFactorPropertyName,
         results
       );
 
