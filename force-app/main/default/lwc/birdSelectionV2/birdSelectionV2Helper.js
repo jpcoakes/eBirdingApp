@@ -9,7 +9,7 @@ export function modalBodySetup(
   if (formFactor === 'Small') {
     gridCols = 1;
   } else {
-    gridCols = 2;
+    gridCols = cityResults.length === 1 ? 1 : 2;
   }
 
   let newResults = cityResults.map((city, index) => {
