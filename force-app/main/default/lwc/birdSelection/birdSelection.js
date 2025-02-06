@@ -1,5 +1,5 @@
 import { LightningElement } from "lwc";
-import US_CITIES from "@salesforce/resourceUrl/CitiesList";
+// import US_CITIES from "@salesforce/resourceUrl/CitiesList";
 
 export default class BirdSelection extends LightningElement {
   _categoryOptions = [];
