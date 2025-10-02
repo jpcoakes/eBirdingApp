@@ -1,0 +1,9 @@
+.tab {
+    color: blue;
+}
+
+.tabset {
+    background-color: white;
+    border: 1px solid black;
+    padding: 10px;;
+}
